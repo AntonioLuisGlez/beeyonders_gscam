@@ -372,7 +372,7 @@ namespace gscam {
           // Construct Image message
           sensor_msgs::ImagePtr img(new sensor_msgs::Image());
 
-ddddd
+
           img->header = cinfo->header;
 
           // Image data and metadata
