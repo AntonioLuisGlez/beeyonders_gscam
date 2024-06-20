@@ -10,6 +10,7 @@
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters.ini"/>
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
+    <param name="use_h265" value="false"/>
     <param name="RTP_port" value="5000"/>
   </node>
 
