@@ -36,7 +36,7 @@ namespace gscam {
     // Gstreamer structures
     GstElement *pipeline_;
     GstElement *sink_;
-
+    
     // Appsink configuration
     bool sync_sink_;
     bool preroll_;
@@ -49,6 +49,9 @@ namespace gscam {
     std::string image_encoding_;
     std::string camera_name_;
     std::string camera_info_url_;
+
+    // Decoder selection
+    bool use_h265_;
 
     // ROS Inteface
     // Calibration between ros::Time and gst timestamps

@@ -1,0 +1,6 @@
+devel_space: /home/algonzalez/Projects/BEEYONDERS/flir_hadron_stream_ws/flir_hadron_video_stream/gscam_RTP/devel
+install: false
+install_space: /home/algonzalez/Projects/BEEYONDERS/flir_hadron_stream_ws/flir_hadron_video_stream/gscam_RTP/install
+profile: default
+source_space: /home/algonzalez/Projects/BEEYONDERS/flir_hadron_stream_ws/flir_hadron_video_stream/gscam_RTP/src
+workspace: /home/algonzalez/Projects/BEEYONDERS/flir_hadron_stream_ws/flir_hadron_video_stream/gscam_RTP

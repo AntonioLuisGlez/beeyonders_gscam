@@ -87,6 +87,13 @@ namespace gscam {
       nh_private_.setParam("RTP_PORT",RTP_port_);
     }
 
+    // Get the h265 or h264 selection
+    if(!nh_private_.getParam("use_h265",use_h265_)){
+      use_h265_ = FALSE;
+      ROS_WARN_STREAM("No decoder selection, using h264 decoder");
+      nh_private_.setParam("use_h265",use_h265_);
+    }
+
     return true;
   }
 
@@ -147,11 +154,19 @@ namespace gscam {
     // Create the pipeline
     source = gst_element_factory_make("udpsrc", "source");
     capsfilter = gst_element_factory_make("capsfilter", "capsfilter");
-    depayloader = gst_element_factory_make("rtph264depay", "depayloader");
-    parser = gst_element_factory_make("h264parse", "parser");
     queue = gst_element_factory_make("queue", "queue");
-    decoder = gst_element_factory_make("avdec_h264", "decoder");
     convert = gst_element_factory_make("videoconvert", "convert");
+
+    // Change decoder between h264 and h265
+    if (use_h265_) {
+        depayloader = gst_element_factory_make("rtph265depay", "depayloader");
+        parser = gst_element_factory_make("h265parse", "parser");
+        decoder = gst_element_factory_make("avdec_h265", "decoder");
+    } else {
+        depayloader = gst_element_factory_make("rtph264depay", "depayloader");
+        parser = gst_element_factory_make("h264parse", "parser");
+        decoder = gst_element_factory_make("avdec_h264", "decoder");
+    }
 
     // Check if elements were created
     if (!pipeline_ || !source || !capsfilter || !depayloader || !parser || !queue || !decoder || !convert || !sink_) {
@@ -169,13 +184,23 @@ namespace gscam {
         return -1;
     }
   
-    // Configurar las caps para el filtro
-    caps_rtp = gst_caps_new_simple("application/x-rtp",
-                              "media", G_TYPE_STRING, "video",
-                              "encoding-name", G_TYPE_STRING, "H264",
-                              "clock-rate", G_TYPE_INT, 90000,
-                              "payload", G_TYPE_INT, 96,
-                              NULL);
+    // Change caps between h264 and h265
+    if (use_h265_) {
+        caps_rtp = gst_caps_new_simple("application/x-rtp",
+                                  "media", G_TYPE_STRING, "video",
+                                  "encoding-name", G_TYPE_STRING, "H265",
+                                  "clock-rate", G_TYPE_INT, 90000,
+                                  "payload", G_TYPE_INT, 96,
+                                  NULL);
+    } else {
+        caps_rtp = gst_caps_new_simple("application/x-rtp",
+                                  "media", G_TYPE_STRING, "video",
+                                  "encoding-name", G_TYPE_STRING, "H264",
+                                  "clock-rate", G_TYPE_INT, 90000,
+                                  "payload", G_TYPE_INT, 96,
+                                  NULL);
+    }
+
     g_object_set(G_OBJECT(capsfilter), "caps", caps_rtp, NULL);
     gst_caps_unref(caps_rtp);
 
@@ -347,6 +372,7 @@ namespace gscam {
           // Construct Image message
           sensor_msgs::ImagePtr img(new sensor_msgs::Image());
 
+ddddd
           img->header = cinfo->header;
 
           // Image data and metadata

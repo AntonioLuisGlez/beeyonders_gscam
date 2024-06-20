@@ -85,7 +85,8 @@ The gscam c++ library can be used, but it is not guaranteed to be stable.
 Examples
 --------
 
-See example launchfiles and configs in the examples directory.
+See example launchfiles and configs in the examples directory. Currently there
+are examples for:
 
 * [Video4Linux2](examples/v4l.launch): Standard
   [video4linux](http://en.wikipedia.org/wiki/Video4Linux)-based cameras like
