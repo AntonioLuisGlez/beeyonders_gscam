@@ -32,8 +32,6 @@ namespace gscam {
     void run();
 
   private:
-    // General gstreamer configuration
-    std::string gsconfig_;
 
     // Gstreamer structures
     GstElement *pipeline_;
@@ -47,7 +45,7 @@ namespace gscam {
 
     // Camera publisher configuration
     std::string frame_id_;
-    int width_, height_;
+    int width_, height_, RTP_port_;
     std::string image_encoding_;
     std::string camera_name_;
     std::string camera_info_url_;

@@ -30,7 +30,6 @@ extern "C"{
 namespace gscam {
 
   GSCam::GSCam(ros::NodeHandle nh_camera, ros::NodeHandle nh_private) :
-    gsconfig_(""),
     pipeline_(NULL),
     sink_(NULL),
     nh_(nh_camera),
@@ -46,29 +45,6 @@ namespace gscam {
 
   bool GSCam::configure()
   {
-    // Get gstreamer configuration
-    // (either from environment variable or ROS param)
-    std::string gsconfig_rosparam = "";
-    bool gsconfig_rosparam_defined = false;
-    char *gsconfig_env = NULL;
-
-    gsconfig_rosparam_defined = nh_private_.getParam("gscam_config",gsconfig_rosparam);
-    gsconfig_env = getenv("GSCAM_CONFIG");
-
-    if (!gsconfig_env && !gsconfig_rosparam_defined) {
-      ROS_FATAL( "Problem getting GSCAM_CONFIG environment variable and 'gscam_config' rosparam is not set. This is needed to set up a gstreamer pipeline." );
-      return false;
-    } else if(gsconfig_env && gsconfig_rosparam_defined) {
-      ROS_FATAL( "Both GSCAM_CONFIG environment variable and 'gscam_config' rosparam are set. Please only define one." );
-      return false;
-    } else if(gsconfig_env) {
-      gsconfig_ = gsconfig_env;
-      ROS_INFO_STREAM("Using gstreamer config from env: \""<<gsconfig_env<<"\"");
-    } else if(gsconfig_rosparam_defined) {
-      gsconfig_ = gsconfig_rosparam;
-      ROS_INFO_STREAM("Using gstreamer config from rosparam: \""<<gsconfig_rosparam<<"\"");
-    }
-
     // Get additional gscam configuration
     nh_private_.param("sync_sink", sync_sink_, true);
     nh_private_.param("preroll", preroll_, false);
@@ -83,7 +59,7 @@ namespace gscam {
     // Get the image encoding
     nh_private_.param("image_encoding", image_encoding_, sensor_msgs::image_encodings::RGB8);
     if (image_encoding_ != sensor_msgs::image_encodings::RGB8 &&
-        image_encoding_ != sensor_msgs::image_encodings::MONO8 && 
+        image_encoding_ != sensor_msgs::image_encodings::MONO8 &&
         image_encoding_ != "jpeg") {
       ROS_FATAL_STREAM("Unsupported image encoding: " + image_encoding_);
     }
@@ -104,6 +80,13 @@ namespace gscam {
       nh_private_.setParam("frame_id",frame_id_);
     }
 
+    // Get RTP Port
+    if(!nh_private_.getParam("RTP_port",RTP_port_)){
+      RTP_port_ = 5000;
+      ROS_WARN_STREAM("No RTP port set, using port \""<<RTP_port_<<"\".");
+      nh_private_.setParam("RTP_PORT",RTP_port_);
+    }
+
     return true;
   }
 
@@ -118,12 +101,6 @@ namespace gscam {
     ROS_DEBUG_STREAM( "Gstreamer Version: " << gst_version_string() );
 
     GError *error = 0; // Assignment to zero is a gst requirement
-
-    pipeline_ = gst_parse_launch(gsconfig_.c_str(), &error);
-    if (pipeline_ == NULL) {
-      ROS_FATAL_STREAM( error->message );
-      return false;
-    }
 
     // Create RGB sink
     sink_ = gst_element_factory_make("appsink",NULL);
@@ -159,47 +136,57 @@ namespace gscam {
     // Sometimes setting this to true can cause a large number of frames to be
     // dropped
     gst_base_sink_set_sync(
-        GST_BASE_SINK(sink_),
-        (sync_sink_) ? TRUE : FALSE);
+      GST_BASE_SINK(sink_),
+      (sync_sink_) ? TRUE : FALSE);
 
-    if(GST_IS_PIPELINE(pipeline_)) {
-      GstPad *outpad = gst_bin_find_unlinked_pad(GST_BIN(pipeline_), GST_PAD_SRC);
-      g_assert(outpad);
+    GstElement *source, *capsfilter, *depayloader, *parser, *queue, *decoder, *convert;
+    GstCaps *caps_rtp;
+    pipeline_ = gst_pipeline_new(NULL);
+    g_assert(pipeline_);
 
-      GstElement *outelement = gst_pad_get_parent_element(outpad);
-      g_assert(outelement);
-      gst_object_unref(outpad);
+    // Create the pipeline
+    source = gst_element_factory_make("udpsrc", "source");
+    capsfilter = gst_element_factory_make("capsfilter", "capsfilter");
+    depayloader = gst_element_factory_make("rtph264depay", "depayloader");
+    parser = gst_element_factory_make("h264parse", "parser");
+    queue = gst_element_factory_make("queue", "queue");
+    decoder = gst_element_factory_make("avdec_h264", "decoder");
+    convert = gst_element_factory_make("videoconvert", "convert");
 
-      if(!gst_bin_add(GST_BIN(pipeline_), sink_)) {
-        ROS_FATAL("gst_bin_add() failed");
-        gst_object_unref(outelement);
-        gst_object_unref(pipeline_);
-        return false;
-      }
-
-      if(!gst_element_link(outelement, sink_)) {
-        ROS_FATAL("GStreamer: cannot link outelement(\"%s\") -> sink\n", gst_element_get_name(outelement));
-        gst_object_unref(outelement);
-        gst_object_unref(pipeline_);
-        return false;
-      }
-
-      gst_object_unref(outelement);
-    } else {
-      GstElement* launchpipe = pipeline_;
-      pipeline_ = gst_pipeline_new(NULL);
-      g_assert(pipeline_);
-
-      gst_object_unparent(GST_OBJECT(launchpipe));
-
-      gst_bin_add_many(GST_BIN(pipeline_), launchpipe, sink_, NULL);
-
-      if(!gst_element_link(launchpipe, sink_)) {
-        ROS_FATAL("GStreamer: cannot link launchpipe -> sink");
-        gst_object_unref(pipeline_);
-        return false;
-      }
+    // Check if elements were created
+    if (!pipeline_ || !source || !capsfilter || !depayloader || !parser || !queue || !decoder || !convert || !sink_) {
+        g_printerr("Not all elements could be created.\n");
+        return -1;
     }
+
+    // Add elements to the pipeline
+    gst_bin_add_many(GST_BIN(pipeline_), source, capsfilter, depayloader, parser, queue, decoder, convert, sink_, NULL);
+
+    // Link elements
+    if (!gst_element_link_many(source, capsfilter, depayloader, parser, queue, decoder, convert, sink_, NULL)) {
+        g_printerr("Fallo al enlazar elementos\n");
+        gst_object_unref(pipeline_);
+        return -1;
+    }
+  
+    // Configurar las caps para el filtro
+    caps_rtp = gst_caps_new_simple("application/x-rtp",
+                              "media", G_TYPE_STRING, "video",
+                              "encoding-name", G_TYPE_STRING, "H264",
+                              "clock-rate", G_TYPE_INT, 90000,
+                              "payload", G_TYPE_INT, 96,
+                              NULL);
+    g_object_set(G_OBJECT(capsfilter), "caps", caps_rtp, NULL);
+    gst_caps_unref(caps_rtp);
+
+    // Configurar el source UDP
+    g_object_set(G_OBJECT(source), "port", RTP_port_, NULL);
+
+    // Ajustar propiedades del source UDP
+    g_object_set(G_OBJECT(source), "buffer-size", 1048576, NULL); // 1 Mb buffer
+    g_object_set(G_OBJECT(source), "do-timestamp", TRUE, NULL);
+
+    g_object_set(G_OBJECT(parser), "config-interval", -1, NULL);
 
     // Calibration between ros::Time and gst timestamps
     GstClock * clock = gst_system_clock_obtain();
@@ -392,7 +379,11 @@ namespace gscam {
         gst_memory_unmap(memory, &info);
         gst_memory_unref(memory);
 #endif
+#if(GST_VERSION_MAJOR >= 1 && GST_VERSION_MINOR >= 16)
+        gst_sample_unref(sample);
+#else
         gst_buffer_unref(buf);
+#endif
       }
 
       ros::spinOnce();
