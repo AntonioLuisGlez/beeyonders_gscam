@@ -17,12 +17,19 @@ You can build gscam with the following command:
 ```
 catkin build -DGSTREAMER_VERSION_1_x=On -j4
 ```
-Once built, the ROS node can be run using:
+After building, you can run the ROS node for an RTP stream with:
 ```
 source devel/setup.zsh
-roslaunch gscam RTP_to_ros.launch
+roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
 ```
+Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
 
+In case you want to run the ROS node for two simultaneous RTP streams:
+```
+source devel/setup.zsh
+roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
+```
+Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
 
 ## Test
 
