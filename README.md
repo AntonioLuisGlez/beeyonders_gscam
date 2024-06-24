@@ -19,6 +19,28 @@ catkin build -DGSTREAMER_VERSION_1_x=On -j4
 ```
 Once built, the ROS node can be run using:
 ```
-cd ./gscam_RTP
+source devel/setup.zsh
 roslaunch gscam RTP_to_ros.launch
+```
+
+
+# Test
+
+In order to test the gscam performance without connecting to a RTP address linked to a real camera, you can follow the next steps:
+
+1. We create a RTP server linked to a `videotestsrc` in a local IP address with a h264 encoder.
+```
+gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+```
+
+2. In another terminal, we launch the node from our workspace:
+```
+cd gscam_RTP
+source devel/setup.zsh
+roslaunch gscam RTP_to_ros.launch
+```
+
+3. In another terminal, we check if the images are being published
+```
+rosrun image_view image_view image:=/RTP/camera/image_raw
 ```
