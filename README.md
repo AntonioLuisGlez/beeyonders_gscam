@@ -13,6 +13,8 @@ The original version has two main issues: a problem with the Gstreamer version (
 
 ## Usage
 
+### Generic RTP streaming
+
 You can build gscam with the following command:
 ```
 catkin build -DGSTREAMER_VERSION_1_x=On -j4
@@ -30,6 +32,63 @@ source devel/setup.zsh
 roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
 ```
 Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+
+### Qualcomm with FLIR HADRON 640R integration RTP streaming
+
+1. **Configure a SSH access**:
+    - Create a SSH key in yout computer: The next command create two SSH keys (One is public and the other one is private)
+        ```
+        ssh-keygen -t rsa
+        ```
+        During this process, you will be prompted to choose a location to save the key (default is ~/.ssh/id_rsa) and to enter a passphrase (optional). You can press Enter to accept the default options and omit the passphrase.
+
+        The output would look like this:
+        ```
+        Generating public/private rsa key pair.
+        Enter file in which to save the key (/home/yourusername/.ssh/id_rsa): [Press Enter]
+        Enter passphrase (empty for no passphrase): [Press Enter]
+        Enter same passphrase again: [Press Enter]
+        ```
+    - Copy public key to Qualcomm: This command copies the public key generated on your computer to the ~/.ssh/authorized_keys file on the Qualcomm, allowing passwordless authentication.
+        ```
+        ssh-copy-id username@qualcomm_ip
+        ```
+        Replace username with your Qualcomm username and qualcomm_ip with the Qualcomm IP address. You will be prompted to enter your Qualcomm account password once to perform the copy. If you want to see what is your Qualcomm username you can type `who` in the qualcomm terminal, and if you want to see the Qualcomm IP address you can type `ip addr show` in the computer terminal.
+
+        The output would look like this:
+        ```
+        The authenticity of host 'qualcomm_ip (qualcomm_ip)' can't be established.
+        RSA key fingerprint is SHA256:...
+        Are you sure you want to continue connecting (yes/no)? yes
+        username@qualcomm_ip's password: [Enter your password]
+        ```
+    - Verify SSH connection without password: You should now be able to connect to Qualcomm from your computer without being prompted for a password.
+        ```
+        ssh username@qualcomm_ip
+        ```
+
+    - Change execute_remote_cmd.py:
+        Access to execute_remote_cmd.py code located in `/gscam_RTP/src/remote_cmd_executor/src/execute_remote_cmd.py` and replace username@qualcomm_ip with the real values in the next lines:
+        
+        ```python
+        def command_callback(msg):
+        rospy.loginfo("Received command: %s", msg.data)
+        ssh_command = f"ssh username@qualcomm_ip '{msg.data}'"
+        execute_command(ssh_command)
+        ```
+
+2. **Build gscam_RTP_pkg and remote_cmd_executor packages**:
+    You can build gscam_RTP_pkg and remote_cmd_executor packages with the following command:
+    ```
+   catkin build -DGSTREAMER_VERSION_1_x=On -j4
+    ```
+3. **Launch the ros node for the RTP qualcomm communication**:
+    After building, you can run the ROS node for an RTP qualcomm video stream with:
+    ```
+    source devel/setup.zsh
+    roslaunch gscam RTP_qualcomm.launch USE_H265_cam2:=true
+    ```
+
 
 ## Test
 
