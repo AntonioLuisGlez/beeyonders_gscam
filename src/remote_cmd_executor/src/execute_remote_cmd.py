@@ -15,25 +15,17 @@ def execute_command(command):
         rospy.logerr("Failed to execute command: %s", e.stderr.decode())
 
 
-def command_callback(msg):
-    rospy.loginfo("Received command: %s", msg.data)
-    ssh_command = f"ssh username@qualcomm_ip '{msg.data}'"
-    execute_command(ssh_command)
-
-
 def remote_cmd_executor():
     rospy.init_node('remote_cmd_executor', anonymous=True)
-    rospy.Subscriber('remote_command', String, command_callback)
 
-    # Publish remote command
-    pub = rospy.Publisher('remote_command', String, queue_size=10, latch=True)
+    # Define your command here
     command = "gst-launch-1.0 -e \
 v4l2src device=/dev/video0 ! video/x-raw,format=I420,width=640,height=514,framerate=60/1 ! queue ! x264enc tune=3 bitrate=10000 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=10.42.0.1 port=5000 sync=false \
 qtiqmmfsrc name=qmmf ! video/x-h265,format=NV12,width=1920,height=1080,framerate=30/1 ! h265parse config-interval=-1 ! rtph265pay ! udpsink host=10.42.0.1 port=5001 sync=false"
-    rospy.loginfo("Publishing command: %s", command)
-    pub.publish(command)
 
-    rospy.spin()
+    rospy.loginfo("Executing command directly: %s", command)
+    ssh_command = f"ssh username@qualcomm_ip '{command}'"
+    execute_command(ssh_command)
 
 
 if __name__ == '__main__':

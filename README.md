@@ -4,36 +4,42 @@ This submodule is a modified version of [gscam](https://github.com/ros-drivers/g
 The original version has two main issues: a problem with the Gstreamer version (More info: [#61](https://github.com/ros-drivers/gscam/pull/61)), and an issue when using an RTP port as a source in the pipeline provided through `gscam_config`. To address these issues, the following changes have been made compared to the original repository:
 
 1. The change proposed in the following pull request has been applied: [#61](https://github.com/ros-drivers/gscam/pull/61)
-2. In [gscam.cpp](src/src/gscam.cpp), the launchpipe element that contained the pipeline information described in `gscam_config` has been replaced with the combination of the created and configured pipeline elements within the same code. In this version of gscam **there is no need to pass any Gstreamer pipeline either from an environment variable or ROS params.**.
+2. In [gscam.cpp](src/gscam_RTP_pkg/src/src/gscam.cpp), the launchpipe element that contained the pipeline information described in `gscam_config` has been replaced with the combination of the created and configured pipeline elements within the same code. In this version of gscam **there is no need to pass any Gstreamer pipeline either from an environment variable or ROS params.**.
 3. The variables and lines of code handling the `gscam_config` variable have been removed.
 4. The ROS parameter `RTP_port` has been added to select which RTP port should be used to receive the images.
 5. The ROS parameter `use_h265` has been added to select between h264 decoder or h265 decoder.
-6. [RTP_to_ros.launch](src/examples/RTP_to_ros.launch) has been added to launch the node for a RTP connection.
-7. [RTP_to_ros_two_cameras.launch](src/examples/RTP_to_ros_two_cameras.launch) has been added to launch the node for two RTP connection.
+6. [RTP_to_ros.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for a RTP connection.
+7. [RTP_to_ros_two_cameras.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros_two_cameras.launch) has been added to launch the node for two RTP connection.
+7. [RTP_qualcomm.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for RTP qualcomm with HADRON 640R connection.
 
 ## Usage
 
 ### Generic RTP streaming
 
-You can build gscam with the following command:
-```
-catkin build -DGSTREAMER_VERSION_1_x=On -j4
-```
-After building, you can run the ROS node for an RTP stream with:
-```
-source devel/setup.zsh
-roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
-```
-Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+The following instructions are used to connect to an RTP stream and convert it to ROS messages. 
 
-In case you want to run the ROS node for two simultaneous RTP streams:
-```
-source devel/setup.zsh
-roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
-```
-Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+1.  **Build gscam_RTP_pkg**: Build gscam with the following command:
+    ```
+    catkin build -DGSTREAMER_VERSION_1_x=On -j4
+    ```
+
+2.  **Launch the ros node for the RTP communication**: After building, you can run the ROS node for an RTP stream with:
+    ```
+    source devel/setup.zsh
+    roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
+    ```
+    Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+
+    In case you want to run the ROS node for two simultaneous RTP streams:
+    ```
+    source devel/setup.zsh
+    roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
+    ```
+    Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
 
 ### Qualcomm with FLIR HADRON 640R integration RTP streaming
+
+The following instructions are to make the qualcomm with camera to which the computer is connected create the RTP video stream and, on the computer side, take the video stream and convert it to ROS messages.
 
 1. **Configure a SSH access**:
     - Create a SSH key in yout computer: The next command create two SSH keys (One is public and the other one is private)
