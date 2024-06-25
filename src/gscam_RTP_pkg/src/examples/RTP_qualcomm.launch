@@ -9,6 +9,21 @@
   <arg name="USE_H265_cam1" default="false"/>
   <arg name="USE_H265_cam2" default="true"/>
 
+  <param name="IR_width" value="640"/>
+  <param name="IR_height" value="514"/>
+  <param name="IR_framerate" value="60/1"/>
+  <param name="IR_IP_address" value="10.42.0.1"/>
+  <param name="IR_UDP_port" value="$(arg RTP_PORT_cam1)"/>
+  <param name="IR_encoder_tune" value="3"/>
+  <param name="IR_encoder_bitrate" value="10000"/>
+  <param name="IR_encoder_speed-preset" value="ultrafast"/>
+
+  <param name="EO_width" value="1920	"/>
+  <param name="EO_height" value="1080"/>
+  <param name="EO_framerate" value="30/1"/>
+  <param name="EO_IP_address" value="10.42.0.1"/>
+  <param name="EO_UDP_port" value="$(arg RTP_PORT_cam2)"/>
+
   <node ns="IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
     <param name="camera_name" value="cam1"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam1.ini"/>
