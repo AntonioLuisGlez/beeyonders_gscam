@@ -73,23 +73,16 @@ The following instructions are to make the qualcomm with camera to which the com
         ssh username@qualcomm_ip
         ```
 
-    - Change execute_remote_cmd.py:
-        Access to execute_remote_cmd.py code located in `/gscam_RTP/src/remote_cmd_executor/src/execute_remote_cmd.py` and replace username@qualcomm_ip with the real values in the next lines:
-        
-        ```python
-        def command_callback(msg):
-        rospy.loginfo("Received command: %s", msg.data)
-        ssh_command = f"ssh username@qualcomm_ip '{msg.data}'"
-        execute_command(ssh_command)
-        ```
-
 2. **Build gscam_RTP_pkg and remote_cmd_executor packages**:
     You can build gscam_RTP_pkg and remote_cmd_executor packages with the following command:
     ```
    catkin build -DGSTREAMER_VERSION_1_x=On -j4
     ```
 3. **Launch the ros node for the RTP qualcomm communication**:
-    After building, you can run the ROS node for an RTP qualcomm video stream with:
+    
+    Change the `username` and `qualcomm_ip` parameters in [RTP_qualcomm.launch](./src/gscam_RTP_pkg/src/examples/RTP_qualcomm.launch)
+    
+    After that, you can run the ROS node for an RTP qualcomm video stream with:
     ```
     source devel/setup.zsh
     roslaunch gscam RTP_qualcomm.launch USE_H265_cam2:=true
