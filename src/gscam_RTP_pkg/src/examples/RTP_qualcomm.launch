@@ -2,6 +2,7 @@
   <!-- This launchfile should bring up a node that broadcasts two ros image
        transport on /IR/camera/image_raw and /EO/camera/image_raw-->
 
+  <!-- gscam_RTP parameters (For receiving the RTP video streaming) -->
   <arg name="DEVICE" default="IR_camera"/>
   <arg name="PUBLISH_FRAME" default="false"/>
   <arg name="UDP_port_cam1" default="5000"/>
@@ -9,6 +10,7 @@
   <arg name="USE_H265_cam1" default="false"/>
   <arg name="USE_H265_cam2" default="true"/>
 
+  <!-- execute_remote_cmd parameters (For making the Qualcomm create the RTP video streaming) -->
   <param name="IR_width" value="640"/>
   <param name="IR_height" value="514"/>
   <param name="IR_framerate" value="60/1"/>
@@ -27,6 +29,7 @@
   <param name="username" value="xxxx"/>
   <param name="qualcomm_ip" value="xxxx"/>
 
+  <!-- gscam_RTP IR camera node -->
   <node ns="IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
     <param name="camera_name" value="cam1"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam1.ini"/>
@@ -36,6 +39,7 @@
     <param name="UDP_port" value="$(arg UDP_port_cam1)"/> <!--Select UDP port -->
   </node>
 
+  <!-- gscam_RTP EO camera node -->
   <node ns="EO" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
     <param name="camera_name" value="cam2"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam2.ini"/>
@@ -45,7 +49,7 @@
     <param name="UDP_port" value="$(arg UDP_port_cam2)"/> <!--Select UDP port -->
   </node>
 
-  <!-- Node for running remote commands -->
+  <!-- execute_remote_cmd node -->
   <node pkg="remote_cmd_executor" type="execute_remote_cmd.py" name="remote_cmd_executor" output="screen"/>
 
   <node if="$(arg PUBLISH_FRAME)" name="v4l_transform" pkg="tf" type="static_transform_publisher" args="1 2 3 0 -3.141 0 /world /v4l_frame 10"/>

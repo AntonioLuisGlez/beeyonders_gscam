@@ -39,7 +39,7 @@ The following instructions are used to connect to an RTP stream and convert it t
 
 ### Qualcomm with FLIR HADRON 640R integration RTP streaming
 
-The following instructions are to make the qualcomm with camera to which the computer is connected create the RTP video stream and, on the computer side, take the video stream and convert it to ROS messages.
+The following instructions are to make the Qualcomm with FLIR HADRON 640R create the RTP video stream and, on the computer side, take the video stream and convert it to ROS messages.
 
 1. **Configure a SSH access**:
     - Create a SSH key in yout computer: The next command create two SSH keys (One is public and the other one is private)
@@ -96,52 +96,52 @@ The following instructions are to make the qualcomm with camera to which the com
 In order to test the gscam performance without connecting to a RTP address linked to a real camera, you can follow the next steps:
 
 1. Create a RTP server linked to a `videotestsrc` in a local IP address with the encoder you prefer (h264 in this example).
-```
-gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=127.0.0.1 port=5000
-```
+    ```
+    gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+    ```
 
 2. In another terminal, launch the node from our workspace:
-```
-cd gscam_RTP
-source devel/setup.zsh
-roslaunch gscam RTP_to_ros.launch UDP_port:=5000 USE_H265:=false
-```
+    ```
+    cd gscam_RTP
+    source devel/setup.zsh
+    roslaunch gscam RTP_to_ros.launch UDP_port:=5000 USE_H265:=false
+    ```
 
 3. In a new terminal, check if the images are being published
-```
-rosrun image_view image_view image:=/RTP/camera/image_raw
-```
+    ```
+    rosrun image_view image_view image:=/RTP/camera/image_raw
+    ```
 
 ### Two RTP connection Test
 
 In order to test the gscam performance taking two simultaneoius video stream without connecting to a RTP address linked to a real camera, you can follow the next steps:
 
 1. Create a RTP server linked to a `videotestsrc` in a local IP address with the encoder you prefer (h264 in this example).
-```
-gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=127.0.0.1 port=5000
-```
+    ```
+    gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=127.0.0.1 port=5000
+    ```
 
 2. Create another RTP server linked to a `videotestsrc` in a local IP address with a different port with the encoder you prefer (h265 in this example).
-```
-gst-launch-1.0 videotestsrc ! videoconvert ! x265enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h265parse config-interval=-1 ! rtph265pay ! udpsink host=127.0.0.1 port=5001
-```
+    ```
+    gst-launch-1.0 videotestsrc ! videoconvert ! x265enc tune=zerolatency bitrate=2048 speed-preset=ultrafast ! h265parse config-interval=-1 ! rtph265pay ! udpsink host=127.0.0.1 port=5001
+    ```
 
 3. In another terminal, launch the node from our workspace:
-```
-cd gscam_RTP
-source devel/setup.zsh
-roslaunch gscam RTP_to_ros_two_cameras.launch UDP_port_cam1:=5000 USE_H265_cam1:=false UDP_port_cam2:=5001 USE_H265_cam2:=true
-```
+    ```
+    cd gscam_RTP
+    source devel/setup.zsh
+    roslaunch gscam RTP_to_ros_two_cameras.launch UDP_port_cam1:=5000 USE_H265_cam1:=false UDP_port_cam2:=5001 USE_H265_cam2:=true
+    ```
 
 4. In a new terminal, check if the images from the first RTP communication are being published.
-```
-rosrun image_view image_view image:=/RTP_1/camera/image_raw
-```
+    ```
+    rosrun image_view image_view image:=/RTP_1/camera/image_raw
+    ```
 
 5. After checking the first RTP connection, check if the images from the second RTP communication are being published.
-```
-rosrun image_view image_view image:=/RTP_2/camera/image_raw
-```
+    ```
+    rosrun image_view image_view image:=/RTP_2/camera/image_raw
+    ```
 
 ## Help / Troubleshooting
 
