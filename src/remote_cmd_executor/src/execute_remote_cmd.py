@@ -37,7 +37,7 @@ if __name__ == '__main__':
         IR_height = rospy.get_param('/IR_height', '514')
         IR_framerate = rospy.get_param('/IR_framerate', '60/1')
         IR_IP_address = rospy.get_param('/IR_IP_address', '10.42.0.1')
-        IR_UDP_port = rospy.get_param('/RTP_PORT_cam1', '5000')
+        IR_UDP_port = rospy.get_param('/UDP_port_cam1', '5000')
         IR_encoder_tune = rospy.get_param('/IR_encoder_tune', '3')
         IR_encoder_bitrate = rospy.get_param('/IR_encoder_bitrate', '10000')
         IR_encoder_speed_preset = rospy.get_param(
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         EO_height = rospy.get_param('/EO_height', '1080')
         EO_framerate = rospy.get_param('/EO_framerate', '30/1')
         EO_IP_address = rospy.get_param('/EO_IP_address', '10.42.0.1')
-        EO_UDP_port = rospy.get_param('/RTP_PORT_cam2', '5001')
+        EO_UDP_port = rospy.get_param('/UDP_port_cam2', '5001')
 
         username = rospy.get_param('/username', 'xxxx')
         qualcomm_ip = rospy.get_param('/qualcomm_ip', 'xxxx')

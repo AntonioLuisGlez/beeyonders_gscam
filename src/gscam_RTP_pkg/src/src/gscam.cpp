@@ -80,11 +80,11 @@ namespace gscam {
       nh_private_.setParam("frame_id",frame_id_);
     }
 
-    // Get RTP Port
-    if(!nh_private_.getParam("RTP_port",RTP_port_)){
-      RTP_port_ = 5000;
-      ROS_WARN_STREAM("No RTP port set, using port \""<<RTP_port_<<"\".");
-      nh_private_.setParam("RTP_PORT",RTP_port_);
+    // Get UDP Port
+    if(!nh_private_.getParam("UDP_port",UDP_port_)){
+      UDP_port_ = 5000;
+      ROS_WARN_STREAM("No UDP port set, using port \""<<UDP_port_<<"\".");
+      nh_private_.setParam("UDP_port",UDP_port_);
     }
 
     // Get the h265 or h264 selection
@@ -205,7 +205,7 @@ namespace gscam {
     gst_caps_unref(caps_rtp);
 
     // Configurar el source UDP
-    g_object_set(G_OBJECT(source), "port", RTP_port_, NULL);
+    g_object_set(G_OBJECT(source), "port", UDP_port_, NULL);
 
     // Ajustar propiedades del source UDP
     g_object_set(G_OBJECT(source), "buffer-size", 1048576, NULL); // 1 Mb buffer

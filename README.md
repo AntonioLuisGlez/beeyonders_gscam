@@ -1,12 +1,12 @@
 # gscam for RTP connection
 
 This submodule is a modified version of [gscam](https://github.com/ros-drivers/gscam).
-The original version has two main issues: a problem with the Gstreamer version (More info: [#61](https://github.com/ros-drivers/gscam/pull/61)), and an issue when using an RTP port as a source in the pipeline provided through `gscam_config`. To address these issues, the following changes have been made compared to the original repository:
+The original version has two main issues: a problem with the Gstreamer version (More info: [#61](https://github.com/ros-drivers/gscam/pull/61)), and an issue when using an RTP server as a source in the pipeline provided through `gscam_config`. To address these issues, the following changes have been made compared to the original repository:
 
 1. The change proposed in the following pull request has been applied: [#61](https://github.com/ros-drivers/gscam/pull/61)
 2. In [gscam.cpp](src/gscam_RTP_pkg/src/src/gscam.cpp), the launchpipe element that contained the pipeline information described in `gscam_config` has been replaced with the combination of the created and configured pipeline elements within the same code. In this version of gscam **there is no need to pass any Gstreamer pipeline either from an environment variable or ROS params.**.
 3. The variables and lines of code handling the `gscam_config` variable have been removed.
-4. The ROS parameter `RTP_port` has been added to select which RTP port should be used to receive the images.
+4. The ROS parameter `UDP_port` has been added to select which UDP port should be used to receive the images.
 5. The ROS parameter `use_h265` has been added to select between h264 decoder or h265 decoder.
 6. [RTP_to_ros.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for a RTP connection.
 7. [RTP_to_ros_two_cameras.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros_two_cameras.launch) has been added to launch the node for two RTP connection.
@@ -26,16 +26,16 @@ The following instructions are used to connect to an RTP stream and convert it t
 2.  **Launch the ros node for the RTP communication**: After building, you can run the ROS node for an RTP stream with:
     ```
     source devel/setup.zsh
-    roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
+    roslaunch gscam RTP_to_ros.launch UDP_PORT:={Source UDP port} USE_H265:={true for H265, false for H264}
     ```
-    Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+    Here, "Source UDP port" is the UDP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
 
     In case you want to run the ROS node for two simultaneous RTP streams:
     ```
     source devel/setup.zsh
-    roslaunch gscam RTP_to_ros.launch ROS_PORT:={Source ROS port} USE_H265:={true for H265, false for H264}
+    roslaunch gscam RTP_to_ros.launch UDP_PORT:={Source UDP port} USE_H265:={true for H265, false for H264}
     ```
-    Here, "Source ROS port" is the RTP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
+    Here, "Source UDP port" is the UDP port you want to connect to, and "true for H265, false for H264" specifies the encoder type: true for H265 and false for H264.
 
 ### Qualcomm with FLIR HADRON 640R integration RTP streaming
 
@@ -104,7 +104,7 @@ gst-launch-1.0 videotestsrc ! videoconvert ! x264enc tune=zerolatency bitrate=20
 ```
 cd gscam_RTP
 source devel/setup.zsh
-roslaunch gscam RTP_to_ros.launch RTP_PORT:=5000 USE_H265:=false
+roslaunch gscam RTP_to_ros.launch UDP_port:=5000 USE_H265:=false
 ```
 
 3. In a new terminal, check if the images are being published
@@ -130,15 +130,15 @@ gst-launch-1.0 videotestsrc ! videoconvert ! x265enc tune=zerolatency bitrate=20
 ```
 cd gscam_RTP
 source devel/setup.zsh
-roslaunch gscam RTP_to_ros_two_cameras.launch RTP_PORT_cam1:=5000 USE_H265_cam1:=false RTP_PORT_cam2:=5001 USE_H265_cam2:=true
+roslaunch gscam RTP_to_ros_two_cameras.launch UDP_port_cam1:=5000 USE_H265_cam1:=false UDP_port_cam2:=5001 USE_H265_cam2:=true
 ```
 
-4. In a new terminal, check if the images from the first RTP port are being published.
+4. In a new terminal, check if the images from the first RTP communication are being published.
 ```
 rosrun image_view image_view image:=/RTP_1/camera/image_raw
 ```
 
-5. After checking the first RTP connection, check if the images from the second RTP port are being published.
+5. After checking the first RTP connection, check if the images from the second RTP communication are being published.
 ```
 rosrun image_view image_view image:=/RTP_2/camera/image_raw
 ```

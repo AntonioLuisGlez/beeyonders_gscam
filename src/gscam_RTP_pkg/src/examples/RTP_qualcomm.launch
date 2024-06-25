@@ -4,8 +4,8 @@
 
   <arg name="DEVICE" default="IR_camera"/>
   <arg name="PUBLISH_FRAME" default="false"/>
-  <arg name="RTP_PORT_cam1" default="5000"/>
-  <arg name="RTP_PORT_cam2" default="5001"/>
+  <arg name="UDP_port_cam1" default="5000"/>
+  <arg name="UDP_port_cam2" default="5001"/>
   <arg name="USE_H265_cam1" default="false"/>
   <arg name="USE_H265_cam2" default="true"/>
 
@@ -13,7 +13,7 @@
   <param name="IR_height" value="514"/>
   <param name="IR_framerate" value="60/1"/>
   <param name="IR_IP_address" value="10.42.0.1"/>
-  <param name="IR_UDP_port" value="$(arg RTP_PORT_cam1)"/>
+  <param name="IR_UDP_port" value="$(arg UDP_port_cam1)"/>
   <param name="IR_encoder_tune" value="3"/>
   <param name="IR_encoder_bitrate" value="10000"/>
   <param name="IR_encoder_speed-preset" value="ultrafast"/>
@@ -22,7 +22,7 @@
   <param name="EO_height" value="1080"/>
   <param name="EO_framerate" value="30/1"/>
   <param name="EO_IP_address" value="10.42.0.1"/>
-  <param name="EO_UDP_port" value="$(arg RTP_PORT_cam2)"/>
+  <param name="EO_UDP_port" value="$(arg UDP_port_cam2)"/>
 
   <param name="username" value="xxxx"/>
   <param name="qualcomm_ip" value="xxxx"/>
@@ -33,7 +33,7 @@
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
     <param name="use_h265" value="$(arg USE_H265_cam1)"/> <!--Select between h264 decoder (False) or h265 decoder (True) -->
-    <param name="RTP_port" value="$(arg RTP_PORT_cam1)"/> <!--Select RTP port -->
+    <param name="UDP_port" value="$(arg UDP_port_cam1)"/> <!--Select UDP port -->
   </node>
 
   <node ns="EO" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
@@ -42,7 +42,7 @@
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
     <param name="use_h265" value="$(arg USE_H265_cam2)"/> <!--Select between h264 decoder (False) or h265 decoder (True) -->
-    <param name="RTP_port" value="$(arg RTP_PORT_cam2)"/> <!--Select RTP port -->
+    <param name="UDP_port" value="$(arg UDP_port_cam2)"/> <!--Select UDP port -->
   </node>
 
   <!-- Node for running remote commands -->
