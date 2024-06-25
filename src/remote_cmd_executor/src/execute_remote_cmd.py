@@ -17,7 +17,7 @@ def execute_command(command):
 
 def remote_cmd_executor(IR_width, IR_height, IR_framerate, IR_IP_address, IR_UDP_port,
                         IR_encoder_tune, IR_encoder_bitrate, IR_encoder_speed_preset,
-                        EO_width, EO_height, EO_framerate, EO_IP_address, EO_UDP_port):
+                        EO_width, EO_height, EO_framerate, EO_IP_address, EO_UDP_port, username, qualcomm_ip):
     rospy.init_node('remote_cmd_executor', anonymous=True)
 
     # Define your command here
@@ -26,7 +26,7 @@ v4l2src device=/dev/video0 ! video/x-raw,format=I420,width={IR_width},height={IR
 qtiqmmfsrc name=qmmf ! video/x-h265,format=NV12,width={EO_width},height={EO_height},framerate={EO_framerate} ! h265parse config-interval=-1 ! rtph265pay ! udpsink host={EO_IP_address} port={EO_UDP_port} sync=false"
 
     rospy.loginfo("Executing command directly: %s", command)
-    ssh_command = f"ssh username@qualcomm_ip '{command}'"
+    ssh_command = f"ssh {username}@{qualcomm_ip} '{command}'"
     execute_command(ssh_command)
 
 
@@ -49,9 +49,12 @@ if __name__ == '__main__':
         EO_IP_address = rospy.get_param('/EO_IP_address', '10.42.0.1')
         EO_UDP_port = rospy.get_param('/RTP_PORT_cam2', '5001')
 
+        username = rospy.get_param('/username', 'xxxx')
+        qualcomm_ip = rospy.get_param('/qualcomm_ip', 'xxxx')
+
         remote_cmd_executor(IR_width, IR_height, IR_framerate, IR_IP_address, IR_UDP_port,
                             IR_encoder_tune, IR_encoder_bitrate, IR_encoder_speed_preset,
-                            EO_width, EO_height, EO_framerate, EO_IP_address, EO_UDP_port)
+                            EO_width, EO_height, EO_framerate, EO_IP_address, EO_UDP_port, username, qualcomm_ip)
 
     except rospy.ROSInterruptException:
         pass

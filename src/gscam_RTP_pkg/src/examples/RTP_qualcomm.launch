@@ -24,6 +24,9 @@
   <param name="EO_IP_address" value="10.42.0.1"/>
   <param name="EO_UDP_port" value="$(arg RTP_PORT_cam2)"/>
 
+  <param name="username" value="xxxx"/>
+  <param name="qualcomm_ip" value="xxxx"/>
+
   <node ns="IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
     <param name="camera_name" value="cam1"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam1.ini"/>
