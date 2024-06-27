@@ -10,7 +10,7 @@ The original version has two main issues: a problem with the Gstreamer version (
 5. The ROS parameter `use_h265` has been added to select between h264 decoder or h265 decoder.
 6. [RTP_to_ros.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for a RTP connection.
 7. [RTP_to_ros_two_cameras.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros_two_cameras.launch) has been added to launch the node for two RTP connection.
-7. [RTP_qualcomm.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for RTP qualcomm with HADRON 640R connection.
+7. [RTP_qualcomm.launch](src/gscam_RTP_pkg/src/examples/RTP_to_ros.launch) has been added to launch the node for RTP qualcomm with HADRON 640R connection. This file used the 'remote_cmd_executor' package.
 
 ## Usage
 
@@ -76,7 +76,11 @@ The following instructions are to make the Qualcomm with FLIR HADRON 640R create
 2. **Build gscam_RTP_pkg and remote_cmd_executor packages**:
     You can build gscam_RTP_pkg and remote_cmd_executor packages with the following command:
     ```
-   catkin build -DGSTREAMER_VERSION_1_x=On -j4
+    catkin build -DGSTREAMER_VERSION_1_x=On -j4
+    ```
+    Or using catkin_make:
+    ```
+    catkin_make -DGSTREAMER_VERSION_1_x=On -j4
     ```
 3. **Launch the ros node for the RTP qualcomm communication**:
     
@@ -85,7 +89,7 @@ The following instructions are to make the Qualcomm with FLIR HADRON 640R create
     After that, you can run the ROS node for an RTP qualcomm video stream with:
     ```
     source devel/setup.zsh
-    roslaunch gscam RTP_qualcomm.launch USE_H265_cam2:=true
+    roslaunch gscam RTP_qualcomm.launch
     ```
 
 

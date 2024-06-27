@@ -7,10 +7,10 @@
   <arg name="UDP_port_cam1" default="5000"/>
   <arg name="UDP_port_cam2" default="5001"/>
   <arg name="USE_H265_cam1" default="false"/>
-  <arg name="USE_H265_cam2" default="false"/>
+  <arg name="USE_H265_cam2" default="true"/>
 
-  <node ns="RTP_1" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
-    <param name="camera_name" value="cam1"/>
+  <node ns="IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
+    <param name="camera_name" value="IR"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam1.ini"/>
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
@@ -18,8 +18,8 @@
     <param name="UDP_port" value="$(arg UDP_port_cam1)"/> <!--Select UDP port -->
   </node>
 
-  <node ns="RTP_2" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
-    <param name="camera_name" value="cam2"/>
+  <node ns="EO" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
+    <param name="camera_name" value="EO"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam2.ini"/>
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
