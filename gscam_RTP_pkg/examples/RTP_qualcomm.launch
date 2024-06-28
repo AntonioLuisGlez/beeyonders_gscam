@@ -3,8 +3,6 @@
        transport on /IR/camera/image_raw and /EO/camera/image_raw-->
 
   <!-- gscam_RTP parameters (For receiving the RTP video streaming) -->
-  <arg name="DEVICE" default="IR_camera"/>
-  <arg name="PUBLISH_FRAME" default="false"/>
   <arg name="UDP_port_cam1" default="5000"/>
   <arg name="UDP_port_cam2" default="5001"/>
   <arg name="USE_H265_cam1" default="false"/>
@@ -20,7 +18,7 @@
   <param name="IR_encoder_bitrate" value="10000"/>
   <param name="IR_encoder_speed-preset" value="ultrafast"/>
 
-  <param name="EO_width" value="1920	"/>
+  <param name="EO_width" value="1920"/>
   <param name="EO_height" value="1080"/>
   <param name="EO_framerate" value="30/1"/>
   <param name="EO_IP_address" value="10.1.0.141"/>
@@ -33,8 +31,8 @@
   <node pkg="remote_cmd_executor" type="execute_remote_cmd.py" name="remote_cmd_executor" output="screen"/>
 
   <!-- gscam_RTP IR camera node -->
-  <node ns="IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
-    <param name="camera_name" value="cam1"/>
+  <node ns="flir_hadron/IR" name="RTP_to_ros_1" pkg="gscam" type="gscam" output="screen">
+    <param name="camera_name" value="flir_hadron/IR"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam1.ini"/>
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
@@ -43,8 +41,8 @@
   </node>
 
   <!-- gscam_RTP EO camera node -->
-  <node ns="EO" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
-    <param name="camera_name" value="cam2"/>
+  <node ns="flir_hadron/EO" name="RTP_to_ros_2" pkg="gscam" type="gscam" output="screen">
+    <param name="camera_name" value="flir_hadron/EO"/>
     <param name="camera_info_url" value="package://gscam/examples/uncalibrated_parameters_cam2.ini"/>
     <param name="frame_id" value="/RTP_frame"/>
     <param name="sync_sink" value="false"/>
@@ -52,5 +50,4 @@
     <param name="UDP_port" value="$(arg UDP_port_cam2)"/> <!--Select UDP port -->
   </node>
 
-  <node if="$(arg PUBLISH_FRAME)" name="v4l_transform" pkg="tf" type="static_transform_publisher" args="1 2 3 0 -3.141 0 /world /v4l_frame 10"/>
 </launch>
