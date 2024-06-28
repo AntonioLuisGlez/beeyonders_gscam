@@ -20,7 +20,7 @@ The following instructions are used to connect to an RTP stream and convert it t
 
 1.  **Build gscam_RTP_pkg**: Build gscam with the following command:
     ```
-    catkin build -DGSTREAMER_VERSION_1_x=On -j4
+    catkin_make -DGSTREAMER_VERSION_1_x=On -j4
     ```
 
 2.  **Launch the ros node for the RTP communication**: After building, you can run the ROS node for an RTP stream with:
